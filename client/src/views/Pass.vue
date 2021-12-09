@@ -7,13 +7,9 @@
       :search="search"
       :custom-filter="filter"
       :disable-sort="true"
-      group-by="zulassungsnummer"
+      group-by="impfstoffzulassungsnummer"
       show-group-by
     >
-      <template v-slot:item.actions="{ item }">
-        <v-icon small class="mr-2"> mdi-pencil </v-icon>
-        <v-icon small @click="showDeleteDialog(item)"> mdi-delete </v-icon>
-      </template>
       <template v-slot:top="{ attrs, on }">
         <div class="mx-1">
           <h3>Mein Impfpass</h3>
@@ -37,15 +33,15 @@
               Neuer Eintrag
             </v-btn>
           </div>
-          <v-dialog v-model="addDialog" max-width="500px">
+          <v-dialog v-if="addItem" v-model="addDialog" max-width="500px">
             <v-card>
-              <v-card-title class="subtitle-1 mb-3">Add</v-card-title
+              <v-card-title class="subtitle-1 mb-3">Hinzufügen</v-card-title
               ><v-card-text class="pb-0">
                 <v-container>
                   <v-row>
                     <v-col cols="12" sm="6" class="py-0">
                       <v-select
-                        :items="addSelection"
+                        :items="selection"
                         item-text="impfstoffname"
                         item-value="zulassungsnummer"
                         filled
@@ -63,8 +59,8 @@
                         color="red darken-2"
                         class="pt-0 mt-0"
                         v-model="addItem.chargennummer"
-                        minlength="8"
-                        maxlength="8"
+                        minlength="10"
+                        maxlength="10"
                       ></v-text-field>
                     </v-col>
                     <v-col cols="12" sm="12" class="py-0">
@@ -83,22 +79,77 @@
               <v-card-actions>
                 <v-spacer></v-spacer>
                 <v-btn color="red darken-2" text @click="addDialog = false"
-                  >Cancel</v-btn
+                  >Abbrechen</v-btn
                 >
                 <v-btn color="red darken-2" text @click="executeAddItem"
-                  >OK</v-btn
+                  >Erstellen</v-btn
                 >
                 <v-spacer></v-spacer>
               </v-card-actions>
             </v-card>
           </v-dialog>
-          <v-dialog v-model="deleteDialog" max-width="500px">
+          <v-dialog v-if="updateItem" v-model="updateDialog" max-width="500px">
+            <v-card>
+              <v-card-title class="subtitle-1 mb-3">Update</v-card-title
+              ><v-card-text class="pb-0">
+                <v-container>
+                  <v-row>
+                    <v-col cols="12" sm="6" class="py-0">
+                      <v-select
+                        :items="selection"
+                        item-text="impfstoffname"
+                        item-value="zulassungsnummer"
+                        filled
+                        label="Impfstoffname"
+                        color="red darken-2"
+                        class="pt-0 mt-0"
+                        v-model="updateItem.impfstoffzulassungsnummer"
+                      ></v-select>
+                    </v-col>
+                    <v-col cols="12" sm="6" class="py-0">
+                      <v-text-field
+                        label="Chargennummer"
+                        filled
+                        required
+                        color="red darken-2"
+                        class="pt-0 mt-0"
+                        v-model="updateItem.chargennummer"
+                        minlength="10"
+                        maxlength="10"
+                      ></v-text-field>
+                    </v-col>
+                    <v-col cols="12" sm="12" class="py-0">
+                      <v-textarea
+                        label="Patienteninfo"
+                        filled
+                        required
+                        color="red darken-2"
+                        class="pt-0 mt-0"
+                        v-model="updateItem.patienteninfo"
+                      ></v-textarea>
+                    </v-col>
+                  </v-row>
+                </v-container>
+              </v-card-text>
+              <v-card-actions>
+                <v-spacer></v-spacer>
+                <v-btn color="red darken-2" text @click="updateDialog = false"
+                  >Abbrechen</v-btn
+                >
+                <v-btn color="red darken-2" text @click="executeUpdateItem"
+                  >Speichern</v-btn
+                >
+                <v-spacer></v-spacer>
+              </v-card-actions>
+            </v-card>
+          </v-dialog>
+          <v-dialog v-if="deleteItem" v-model="deleteDialog" max-width="500px">
             <v-card>
               <v-card-title class="subtitle-1"
                 >Delete
                 {{
                   deleteItem
-                    ? `${deleteItem.impfstoffname} (${deleteItem.zulassungsnummer})`
+                    ? `${deleteItem.impfstoffname} (${deleteItem.impfstoffzulassungsnummer})`
                     : 'Item'
                 }}?</v-card-title
               >
@@ -108,13 +159,19 @@
                   >Cancel</v-btn
                 >
                 <v-btn color="red darken-2" text @click="executeDeleteItem"
-                  >OK</v-btn
+                  >Entfernen</v-btn
                 >
                 <v-spacer></v-spacer>
               </v-card-actions>
             </v-card>
           </v-dialog>
         </div>
+      </template>
+      <template v-slot:item.actions="{ item }">
+        <v-icon small @click="showUpdateDialog(item)" class="mr-2">
+          mdi-pencil
+        </v-icon>
+        <v-icon small @click="showDeleteDialog(item)"> mdi-delete </v-icon>
       </template>
     </v-data-table>
   </div>
@@ -128,19 +185,19 @@ export default {
     return {
       headers: [
         {
-          text: 'Impfstoff',
+          text: 'Impfstoff: ',
           value: 'impfstoffname',
         },
         {
-          text: 'Zulassung',
-          value: 'zulassungsnummer',
+          text: 'Zulassung: ',
+          value: 'impfstoffzulassungsnummer',
         },
         {
-          text: 'Charge',
+          text: 'Charge: ',
           value: 'chargennummer',
         },
         {
-          text: 'Impfdatum',
+          text: 'Impfdatum: ',
           value: 'impfdatum',
         },
         {
@@ -156,7 +213,9 @@ export default {
         chargennummer: '',
         patienteninfo: '',
       },
-      addSelection: [],
+      selection: [],
+      updateDialog: false,
+      updateItem: null,
       deleteDialog: false,
       deleteItem: null,
     };
@@ -182,7 +241,7 @@ export default {
           url: `http://localhost:3000/impfstoffe`,
           method: 'GET',
         });
-        this.addSelection = result.data;
+        this.selection = result.data;
       } catch (error) {
         console.error('Fetch data error:', error);
       }
@@ -196,8 +255,37 @@ export default {
         });
         this.addDialog = false;
         this.$emit('refresh');
+
+        this.addItem.impfstoffzulassungsnummer = '';
+        this.addItem.chargennummer = '';
+        this.addItem.patienteninfo = '';
       } catch (error) {
         console.error('Post data error:', error);
+      }
+    },
+    async showUpdateDialog(item) {
+      this.updateDialog = true;
+      this.updateItem = item;
+      try {
+        const result = await axios({
+          url: `http://localhost:3000/impfstoffe`,
+          method: 'GET',
+        });
+        this.selection = result.data;
+      } catch (error) {
+        console.error('Fetch data error:', error);
+      }
+    },
+    async executeUpdateItem() {
+      try {
+        await axios({
+          url: `http://localhost:3000/impfeintraege/${this.updateItem.id}`,
+          method: 'PATCH',
+        });
+        this.updateDialog = false;
+        this.$emit('refresh');
+      } catch (error) {
+        console.error('Update data error:', error);
       }
     },
     showDeleteDialog(item) {

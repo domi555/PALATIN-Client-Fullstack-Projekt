@@ -12,15 +12,6 @@
 
         <h3 class="font-weight-regular ml-2">e-Impfpass</h3>
       </div>
-
-      <v-spacer></v-spacer>
-
-      <v-btn to="/" class="dark lighten-2 mr-2" active-class="dark lighten-3"
-        >Patient</v-btn
-      >
-      <v-btn to="/arzt" class="dark lighten-2" active-class="dark lighten-3"
-        >Arzt</v-btn
-      >
     </v-app-bar>
 
     <v-main>
@@ -52,7 +43,9 @@ export default {
           (el, i) =>
             (this.impfeintraege[i].impfdatum =
               new Date(el.impfdatum).getDate() +
+              '.' +
               new Date(el.impfdatum).getMonth() +
+              '.' +
               new Date(el.impfdatum).getFullYear()),
         );
       } catch (error) {

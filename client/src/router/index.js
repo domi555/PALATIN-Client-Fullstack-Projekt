@@ -1,20 +1,14 @@
 import Vue from 'vue';
 import VueRouter from 'vue-router';
-import Patient from '../views/Patient.vue';
-import Arzt from '../views/Arzt.vue';
+import Pass from '../views/Pass.vue';
 
 Vue.use(VueRouter);
 
 const routes = [
   {
     path: '/',
-    name: 'Patient',
-    component: Patient,
-  },
-  {
-    path: '/arzt',
-    name: 'Arzt',
-    component: Arzt,
+    name: 'Pass',
+    component: Pass,
   },
 ];
 
