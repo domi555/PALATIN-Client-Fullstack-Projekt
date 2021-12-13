@@ -12,7 +12,7 @@
     >
       <template v-slot:top="{ attrs, on }">
         <div class="mx-1">
-          <h3>Mein Impfpass</h3>
+          <h3>Impfpassverwaltung</h3>
           <div class="d-flex">
             <v-text-field
               v-model="search"
@@ -41,7 +41,7 @@
                   <v-row>
                     <v-col cols="12" sm="6" class="py-0">
                       <v-select
-                        :items="selection"
+                        :items="impfstoffe"
                         item-text="impfstoffname"
                         item-value="zulassungsnummer"
                         filled
@@ -96,7 +96,7 @@
                   <v-row>
                     <v-col cols="12" sm="6" class="py-0">
                       <v-select
-                        :items="selection"
+                        :items="impfstoffe"
                         item-text="impfstoffname"
                         item-value="zulassungsnummer"
                         filled
@@ -213,7 +213,6 @@ export default {
         chargennummer: '',
         patienteninfo: '',
       },
-      selection: [],
       updateDialog: false,
       updateItem: null,
       deleteDialog: false,
@@ -222,6 +221,9 @@ export default {
   },
   props: {
     impfeintraege: {
+      type: Array,
+    },
+    impfstoffe: {
       type: Array,
     },
   },
@@ -236,15 +238,6 @@ export default {
     },
     async showAddDialog() {
       this.addDialog = true;
-      try {
-        const result = await axios({
-          url: `http://localhost:3000/impfstoffe`,
-          method: 'GET',
-        });
-        this.selection = result.data;
-      } catch (error) {
-        console.error('Fetch data error:', error);
-      }
     },
     async executeAddItem() {
       try {
@@ -266,15 +259,6 @@ export default {
     async showUpdateDialog(item) {
       this.updateDialog = true;
       this.updateItem = item;
-      try {
-        const result = await axios({
-          url: `http://localhost:3000/impfstoffe`,
-          method: 'GET',
-        });
-        this.selection = result.data;
-      } catch (error) {
-        console.error('Fetch data error:', error);
-      }
     },
     async executeUpdateItem() {
       try {

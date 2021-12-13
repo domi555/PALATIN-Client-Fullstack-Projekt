@@ -12,10 +12,23 @@
 
         <h3 class="font-weight-regular ml-2">e-Impfpass</h3>
       </div>
+
+      <v-spacer></v-spacer>
+
+      <v-btn to="/" class="dark lighten-3 mr-2" active-class="red darken-4"
+        >Pass</v-btn
+      >
+      <v-btn to="/edit" class="dark lighten-3" active-class="red darken-4"
+        >Bearbeiten</v-btn
+      >
     </v-app-bar>
 
     <v-main>
-      <router-view :impfeintraege="impfeintraege" @refresh="loadData" />
+      <router-view
+        :impfeintraege="impfeintraege"
+        :impfstoffe="impfstoffe"
+        @refresh="loadData"
+      />
     </v-main>
   </v-app>
 </template>
@@ -27,9 +40,11 @@ export default {
   name: 'App',
   data: () => ({
     impfeintraege: [],
+    impfstoffe: [],
   }),
   async created() {
     this.loadData();
+    this.getImpfstoffe();
   },
   methods: {
     async loadData() {
@@ -48,6 +63,17 @@ export default {
               '.' +
               new Date(el.impfdatum).getFullYear()),
         );
+      } catch (error) {
+        console.error('Fetch data error:', error);
+      }
+    },
+    async getImpfstoffe() {
+      try {
+        const result = await axios({
+          url: `http://localhost:3000/impfstoffe`,
+          method: 'GET',
+        });
+        this.impfstoffe = result.data;
       } catch (error) {
         console.error('Fetch data error:', error);
       }
