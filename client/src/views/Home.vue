@@ -1,25 +1,39 @@
 <template>
   <v-container>
-    <div v-for="k of impfstoffe" :key="k.id">
-      <h3 class="mt-2 ml-2">
+    <h3 class="ml-2 pt-5">Mein Impfpass</h3>
+    <div
+      v-for="impfstoff of impfstoffe"
+      :key="impfstoff.id"
+      v-show="filterImpfeintraege(impfstoff).length != 0"
+    >
+      <h4 class="mt-2 ml-2">
         Impfstoff:
-        <span class="font-weight-medium">{{ k.impfstoffname }}</span>
-      </h3>
+        <span class="font-weight-medium">{{ impfstoff.impfstoffname }}</span>
+      </h4>
 
       <div class="d-flex flex-wrap justify-start align-start">
-        <v-card v-for="i of filter(k)" :key="i.id" class="ma-2" width="300">
+        <v-card
+          v-for="impfeintrag of filterImpfeintraege(impfstoff)"
+          :key="impfeintrag.id"
+          class="ma-2"
+          width="300"
+        >
           <v-card-text>
-            <div>{{ i.impfstoffname }}</div>
+            <div class="black--text font-weight-bold">
+              {{ impfeintrag.impfstoffname }}
+            </div>
             <p class="text-h6 font-weight-bold red--text text--darken-1 mb-1">
-              {{ i.impfstoffzulassungsnummer }}
+              {{ impfeintrag.impfstoffzulassungsnummer }}
             </p>
-            <p class="mb-1">{{ i.chargennummer }}</p>
-            <p class="font-weight-bold mb-0">
-              Datum: <span class="font-weight-medium">{{ i.impfdatum }}</span>
+            <p class="black--text mb-1">{{ impfeintrag.chargennummer }}</p>
+            <p class="black--text darken font-weight-bold mb-0">
+              Datum:
+              <span class="font-weight-medium">{{
+                impfeintrag.impfdatum
+              }}</span>
             </p>
           </v-card-text>
         </v-card>
-        <p v-if="filter(k).length == 0" class="ml-3">Nicht bekannt.</p>
       </div>
     </div></v-container
   >
@@ -36,9 +50,9 @@ export default {
     },
   },
   methods: {
-    filter(k) {
+    filterImpfeintraege(i) {
       return this.impfeintraege.filter(
-        (el) => el.impfstoffzulassungsnummer == k.zulassungsnummer,
+        (el) => el.impfstoffzulassungsnummer == i.zulassungsnummer,
       );
     },
   },

@@ -27,7 +27,7 @@
       <router-view
         :impfeintraege="impfeintraege"
         :impfstoffe="impfstoffe"
-        @refresh="loadData"
+        @refresh="getImpfeintraege"
       />
     </v-main>
   </v-app>
@@ -43,29 +43,30 @@ export default {
     impfstoffe: [],
   }),
   async created() {
-    this.loadData();
+    this.getImpfeintraege();
     this.getImpfstoffe();
   },
   methods: {
-    async loadData() {
+    async getImpfeintraege() {
       try {
         const result = await axios({
           url: 'http://localhost:3000/impfeintraege',
           method: 'GET',
         });
         this.impfeintraege = result.data;
-        this.impfeintraege.forEach(
-          (el, i) =>
-            (this.impfeintraege[i].impfdatum =
-              new Date(el.impfdatum).getDate() +
-              '.' +
-              new Date(el.impfdatum).getMonth() +
-              '.' +
-              new Date(el.impfdatum).getFullYear()),
-        );
+        this.impfeintraege.forEach((el, i) => {
+          this.impfeintraege[i].impfdatum = `${this.formatDate(
+            new Date(el.impfdatum).getDate(),
+          )}.${this.formatDate(new Date(el.impfdatum).getMonth())}.${new Date(
+            el.impfdatum,
+          ).getFullYear()}`;
+        });
       } catch (error) {
         console.error('Fetch data error:', error);
       }
+    },
+    formatDate(date) {
+      return date < 10 ? '0' + date : date;
     },
     async getImpfstoffe() {
       try {

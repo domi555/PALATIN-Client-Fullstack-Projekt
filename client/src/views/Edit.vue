@@ -1,5 +1,5 @@
 <template>
-  <div class="container mt-6">
+  <v-container class="mt-6">
     <!-- DATA TABLE -->
     <v-data-table
       :headers="headers"
@@ -13,6 +13,7 @@
       <template v-slot:top="{ attrs, on }">
         <div class="mx-1">
           <h3>Impfpassverwaltung</h3>
+
           <div class="d-flex">
             <v-text-field
               v-model="search"
@@ -20,7 +21,9 @@
               color="red darken-2"
               clearable
             ></v-text-field>
+
             <v-spacer></v-spacer>
+
             <v-btn
               small
               color="red darken-2"
@@ -33,9 +36,11 @@
               Neuer Eintrag
             </v-btn>
           </div>
+
+          <!-- Add Dialog -->
           <v-dialog v-if="addItem" v-model="addDialog" max-width="500px">
             <v-card>
-              <v-card-title class="subtitle-1 mb-3">Hinzufügen</v-card-title
+              <v-card-title class="subtitle-1 mb-3">Neuer Eintrag</v-card-title
               ><v-card-text class="pb-0">
                 <v-container>
                   <v-row>
@@ -59,7 +64,6 @@
                         color="red darken-2"
                         class="pt-0 mt-0"
                         v-model="addItem.chargennummer"
-                        minlength="10"
                         maxlength="10"
                       ></v-text-field>
                     </v-col>
@@ -88,9 +92,11 @@
               </v-card-actions>
             </v-card>
           </v-dialog>
+          <!-- Update Dialog -->
           <v-dialog v-if="updateItem" v-model="updateDialog" max-width="500px">
             <v-card>
-              <v-card-title class="subtitle-1 mb-3">Update</v-card-title
+              <v-card-title class="subtitle-1 mb-3"
+                >Eintrag aktualisieren</v-card-title
               ><v-card-text class="pb-0">
                 <v-container>
                   <v-row>
@@ -114,7 +120,6 @@
                         color="red darken-2"
                         class="pt-0 mt-0"
                         v-model="updateItem.chargennummer"
-                        minlength="10"
                         maxlength="10"
                       ></v-text-field>
                     </v-col>
@@ -143,23 +148,22 @@
               </v-card-actions>
             </v-card>
           </v-dialog>
+          <!-- Delete Dialog -->
           <v-dialog v-if="deleteItem" v-model="deleteDialog" max-width="500px">
             <v-card>
               <v-card-title class="subtitle-1"
-                >Delete
+                >Löschen:
                 {{
-                  deleteItem
-                    ? `${deleteItem.impfstoffname} (${deleteItem.impfstoffzulassungsnummer})`
-                    : 'Item'
-                }}?</v-card-title
+                  `${deleteItem.impfstoffname} (${deleteItem.impfstoffzulassungsnummer})`
+                }}</v-card-title
               >
               <v-card-actions>
                 <v-spacer></v-spacer>
                 <v-btn color="red darken-2" text @click="deleteDialog = false"
-                  >Cancel</v-btn
+                  >Abbrechen</v-btn
                 >
                 <v-btn color="red darken-2" text @click="executeDeleteItem"
-                  >Entfernen</v-btn
+                  >Löschen</v-btn
                 >
                 <v-spacer></v-spacer>
               </v-card-actions>
@@ -174,7 +178,7 @@
         <v-icon small @click="showDeleteDialog(item)"> mdi-delete </v-icon>
       </template>
     </v-data-table>
-  </div>
+  </v-container>
 </template>
 
 <script>
@@ -207,14 +211,18 @@ export default {
         },
       ],
       search: '',
+
+      // Add Dialog
       addDialog: false,
       addItem: {
         impfstoffzulassungsnummer: '',
         chargennummer: '',
         patienteninfo: '',
       },
+      // Update Dialog
       updateDialog: false,
       updateItem: null,
+      // Delete Dialog
       deleteDialog: false,
       deleteItem: null,
     };
@@ -236,6 +244,7 @@ export default {
         value.toString().toLowerCase().indexOf(search.toLowerCase()) !== -1
       );
     },
+    // Add Dialog
     async showAddDialog() {
       this.addDialog = true;
     },
@@ -253,9 +262,10 @@ export default {
         this.addItem.chargennummer = '';
         this.addItem.patienteninfo = '';
       } catch (error) {
-        console.error('Post data error:', error);
+        console.log('Post data error:', error);
       }
     },
+    // Update Dialog
     async showUpdateDialog(item) {
       this.updateDialog = true;
       this.updateItem = item;
@@ -265,13 +275,20 @@ export default {
         await axios({
           url: `http://localhost:3000/impfeintraege/${this.updateItem.id}`,
           method: 'PATCH',
+          data: {
+            impfstoff_zulassungsnummer:
+              this.updateItem.impfstoffzulassungsnummer,
+            chargennummer: this.updateItem.chargennummer,
+            patienteninfo: this.updateItem.patienteninfo,
+          },
         });
         this.updateDialog = false;
         this.$emit('refresh');
       } catch (error) {
-        console.error('Update data error:', error);
+        console.log('Update data error:', error);
       }
     },
+    // Delete Dialog
     showDeleteDialog(item) {
       this.deleteDialog = true;
       this.deleteItem = item;
@@ -285,7 +302,7 @@ export default {
         this.deleteDialog = false;
         this.$emit('refresh');
       } catch (error) {
-        console.error('Delete data error:', error);
+        console.log('Delete data error:', error);
       }
     },
   },
