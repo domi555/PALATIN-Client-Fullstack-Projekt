@@ -268,7 +268,7 @@ export default {
     // Update Dialog
     async showUpdateDialog(item) {
       this.updateDialog = true;
-      this.updateItem = item;
+      this.updateItem = { ...item };
     },
     async executeUpdateItem() {
       try {
@@ -291,7 +291,7 @@ export default {
     // Delete Dialog
     showDeleteDialog(item) {
       this.deleteDialog = true;
-      this.deleteItem = item;
+      this.deleteItem = { ...item };
     },
     async executeDeleteItem() {
       try {
